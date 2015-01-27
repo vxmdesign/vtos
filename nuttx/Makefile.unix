@@ -175,6 +175,7 @@ endif
 # This is the name of the final target (relative to the top level directorty)
 
 BIN = nuttx$(EXEEXT)
+LIB = libnuttx$(LIBEXT)
 
 all: $(BIN)
 .PHONY: context clean_context check_context export subdir_clean clean subdir_distclean distclean apps_clean apps_distclean
@@ -433,6 +434,15 @@ ifeq ($(CONFIG_UBOOT_UIMAGE),y)
 	fi
 endif
 
+install: 
+	$(Q) $(MAKE) -C $(ARCH_SRC) DESTDIR=$(DESTDIR) install
+	$(Q) $(MAKE) -C ./lib DESTDIR=$(DESTDIR) install
+	$(Q) $(INSTALL) -T $(ARCHSCRIPT_PATH) $(DESTDIR)/$(LDSCRIPT_INSTALL_NAME)
+
+$(LIB): pass1deps pass2deps pass1 
+	$(Q) $(MAKE) -C lib/ ARCH_SRC=$(TOPDIR)/$(ARCH_SRC) TOPDIR="$(TOPDIR)" EXTRA_OBJS="$(EXTRA_OBJS)" LINKLIBS="$(LINKLIBS)" EXTRADEFINES=$(KDEFINE) $(LIB)
+	$(Q) cp $(ARCH_SRC)/board/libboard.a ./lib/
+
 # $(BIN)
 #
 # Create the final NuttX executable in a two pass build process.  In the
@@ -508,6 +518,9 @@ export: pass2deps
 # distclean: Does 'clean' then also removes all configuration and context
 #            files.  This essentially restores the directory structure
 #            to its original, unconfigured stated.
+
+%_defconfig: 
+	make -C $(TOPDIR)/tools TARGET_BOARD=$(TARGET_BOARD) DEFCONFIG=$(patsubst %_defconfig,%,$@) defconfig
 
 depend: pass1dep pass2dep
 

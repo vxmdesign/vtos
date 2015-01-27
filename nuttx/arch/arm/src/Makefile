@@ -171,10 +171,10 @@ $(BIN) $(KBIN): $(OBJS)
 $(UBIN): $(UOBJS)
 	$(call ARCHIVE, $@, $(UOBJS))
 
-board/libboard$(LIBEXT):
+board/libboard$(LIBEXT): $(HEAD_OBJ)
 	$(Q) $(MAKE) -C board TOPDIR="$(TOPDIR)" libboard$(LIBEXT) EXTRADEFINES=$(EXTRADEFINES)
 
-nuttx$(EXEEXT): $(HEAD_OBJ) board/libboard$(LIBEXT)
+nuttx$(EXEEXT):  board/libboard$(LIBEXT)
 	$(Q) echo "LD: nuttx"
 	$(Q) $(LD) --entry=__start $(LDFLAGS) $(LIBPATHS) $(EXTRA_LIBPATHS) \
 		-o $(NUTTX) $(HEAD_OBJ) $(EXTRA_OBJS) \
@@ -185,6 +185,8 @@ ifneq ($(CONFIG_WINDOWS_NATIVE),y)
 	sort > $(TOPDIR)/System.map
 endif
 
+install: $(HEAD_OBJ) 
+	$(Q) $(INSTALL) -T $(HEAD_OBJ) $(DESTDIR)/$(HEAD_OBJ)
 # This is part of the top-level export target
 # Note that there may not be a head object if layout is handled
 # by the linker configuration.

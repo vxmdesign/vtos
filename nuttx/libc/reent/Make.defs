@@ -1,5 +1,5 @@
 ############################################################################
-# lib/Makefile
+# libc/dirent/Make.defs
 #
 #   Copyright (C) 2012 Gregory Nutt. All rights reserved.
 #   Author: Gregory Nutt <gnutt@nuttx.org>
@@ -31,25 +31,17 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-###########################################################################
+############################################################################
 
--include $(TOPDIR)/Make.defs
 
-all:
+# Add the dirent C files to the build
 
-libnuttx$(LIBEXT): $(LINKLIBS) libboard.a
-	$(Q) $(AR) libnuttx.a $^
+CSRCS += impure.c errno.c
 
-libboard.a:
-	$(Q) $(MAKE) -C $(ARCH_SRC) TOPDIR="$(TOPDIR)" EXTRA_OBJS="$(EXTRA_OBJS)" LINKLIBS="$(LINKLIBS)" EXTRADEFINES=$(KDEFINE) board/libboard.a
-	$(Q) cp $(ARCH_SRC)/board/libboard.a ./
+# Add the dirent directory to the build
 
-install: libnuttx$(LIBEXT)
-	$(Q) $(INSTALL) -T $^ $(DESTDIR)/$^
+DEPPATH += --dep-path reent
+VPATH += :reent
 
-depend:
 
-clean:
-	$(call CLEAN)
 
-distclean: clean
